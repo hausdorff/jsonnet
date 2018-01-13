@@ -294,6 +294,7 @@ enum BinaryOp {
 
     BOP_PLUS,
     BOP_MINUS,
+    BOP_THREAD,
 
     BOP_SHIFT_L,
     BOP_SHIFT_R,
@@ -324,6 +325,7 @@ static inline std::string bop_string(BinaryOp bop)
 
         case BOP_PLUS: return "+";
         case BOP_MINUS: return "-";
+        case BOP_THREAD: return "->>";
 
         case BOP_SHIFT_L: return "<<";
         case BOP_SHIFT_R: return ">>";
@@ -1002,6 +1004,7 @@ std::map<BinaryOp, int> build_precedence_map(void)
 
     r[BOP_PLUS] = 6;
     r[BOP_MINUS] = 6;
+    r[BOP_THREAD] = 6;
 
     r[BOP_SHIFT_L] = 7;
     r[BOP_SHIFT_R] = 7;
@@ -1048,6 +1051,7 @@ std::map<std::string, BinaryOp> build_binary_map(void)
 
     r["+"] = BOP_PLUS;
     r["-"] = BOP_MINUS;
+    r["->>"] = BOP_THREAD;
 
     r["<<"] = BOP_SHIFT_L;
     r[">>"] = BOP_SHIFT_R;

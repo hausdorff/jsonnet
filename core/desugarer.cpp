@@ -616,6 +616,24 @@ class Desugarer {
                         ast_ = make<Unary>(ast->location, ast->openFodder, UOP_NOT, ast_);
                 } break;
 
+                case BOP_THREAD: {
+                    // Rewrite expressions of the following form:
+                    //   * `foo ->> bar` to `bar(foo)`
+                    //   * `foo ->> bar()` to `bar(foo)`
+                    //   * `foo ->> bar(baz)` to `bar(foo, baz)`
+                    //
+                    // And, incidentally (by recursion):
+                    //   * `foo ->> bar(arg1) ->> baz(arg2)` to `baz(bar(foo, arg1), arg2)`
+                    ArgParams args = {{ast->left, EF}};
+                    AST *target = ast->right;
+                    if (auto *right = dynamic_cast<Apply *>(ast->right)) {
+                        args.insert(args.end(), right->args.begin(), right->args.end());
+                        target = right->target;
+                    }
+                    ast_ = make<Apply>(
+                        ast->location, ast->openFodder, target, EF, args, false, EF, EF, false);
+                } break;
+
                 default:;
                     // Otherwise don't change it.
             }

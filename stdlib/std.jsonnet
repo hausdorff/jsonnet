@@ -1037,4 +1037,44 @@ limitations under the License.
             for x in std.objectFields(a) if isContent(std.prune(a[x]))
         } else
             a,
+
+    collections:: {
+        enumerate(o)::
+            local type = std.type(o);
+            if type == "array" then o
+            else if type == "object" then [{key: k, value: o[k]} for k in std.objectFields(o)]
+            else if type == "string" then std.stringChars(o)
+            else error "Can't enumerate type: " + type,
+
+        map(o, transform):: self.select(o, transform),
+        select(o, transform):: [ transform(e) for e in self.enumerate(o) ],
+
+        mapObj(o, transform):: self.selectObj(o, transform),
+        selectObj(o, transform):: o ->> self.select(transform) ->> self.toObject,
+
+        filter(o, f):: self.where(o, f),
+        where(o, filter)::
+            [e for e in self.enumerate(o) if filter(e)],
+
+        filterObj(o, f):: self.whereObj(o, f),
+        whereObj(o, filter):: o ->> self.where(filter) ->> self.toObject,
+
+        take(o, n)::
+            assert  n >= 0 : "n must be a non-negative number, but was: " + n;
+            local enum = self.enumerate(o);
+            local limit = std.min(n, std.length(enum));
+            [enum[i] for i in std.range(0, limit-1)],
+
+        zip(o1, o2)::
+            local enum1 = self.enumerate(o1);
+            local enum2 = self.enumerate(o2);
+            local limit = std.min(std.length(o1), std.length(o2));
+            [[o1[i], o2[i]], for i in std.range(0, limit-1)],
+
+        toObject(o)::
+            {
+                [kv.key]: kv.value
+                for kv in self.enumerate(o)
+            },
+    },
 }

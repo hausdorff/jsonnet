@@ -67,6 +67,8 @@ TEST(Parser, TestExpressions)
     testParse("true || false");
     testParse("0 && 1 || 0");
     testParse("0 && (1 || 0)");
+
+    testParse("o ->> select(t)");
 }
 
 TEST(Parser, TestLocal)
